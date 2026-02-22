@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沉浸式动物微观剧场</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; background: linear-gradient(135deg, #0f172a 0%, #1a2332 50%, #0f172a 100%); color: #f8fafc; font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 12px; }
+        .container { width: 100%; max-width: 100%; background: linear-gradient(145deg, rgba(30,41,59,0.95), rgba(15,23,42,0.9)); backdrop-filter: blur(10px); border-radius: 32px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05); position: relative; }
+        .image-wrapper { width: 100%; height: 42vh; min-height: 280px; max-height: 500px; background: linear-gradient(135deg, #334155 0%, #1e293b 100%); position: relative; overflow: hidden; }
+        .image-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .image-wrapper img.loading { opacity: 0; transform: scale(1.05); }
+        .skeleton { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%); background-size: 200% 100%; animation: skeleton 1.5s infinite; z-index: 1; }
+        @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .loading-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: linear-gradient(90deg, #38bdf8, #0ea5e9); width: 0%; transition: width 0.3s; z-index: 2; box-shadow: 0 0 10px rgba(56,189,248,0.5); }
+        .info-panel { padding: 28px 20px 32px; text-align: center; position: relative; }
+        .info-panel::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 3px; background: linear-gradient(90deg, transparent, #38bdf8, transparent); border-radius: 2px; }
+        h2 { font-size: clamp(28px, 6vw, 36px); margin: 0 0 12px 0; color: #38bdf8; letter-spacing: 2px; font-weight: 600; text-shadow: 0 0 20px rgba(56,189,248,0.3); }
+        .story { font-size: clamp(14px, 3.5vw, 16px); line-height: 1.8; color: #94a3b8; margin: 20px 0; min-height: 72px; text-align: justify; transition: opacity 0.3s; }
+        .story.fade-in { animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-explore { background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); color: #0f172a; border: none; padding: 16px 32px; border-radius: 50px; font-size: clamp(16px, 4vw, 18px); font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 100%; box-shadow: 0 10px 25px -5px rgba(56,189,248,0.4), 0 0 0 1px rgba(56,189,248,0.2); position: relative; overflow: hidden; }
+        .btn-explore:hover { transform: translateY(-2px); box-shadow: 0 15px 35px -5px rgba(56,189,248,0.5), 0 0 0 1px rgba(56,189,248,0.3); }
+        .btn-explore:active { transform: translateY(0) scale(0.98); }
+        .btn-explore:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .audio-indicator { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; height: 32px; padding: 8px 16px; background: rgba(56,189,248,0.1); border-radius: 20px; border: 1px solid rgba(56,189,248,0.2); }
+        .wave { display: flex; align-items: flex-end; gap: 3px; height: 18px; }
+        .wave-bar { width: 3px; background: linear-gradient(180deg, #38bdf8, #0ea5e9); border-radius: 2px; animation: wave 0.7s ease-in-out infinite; opacity: 0; transition: opacity 0.3s; box-shadow: 0 0 8px rgba(56,189,248,0.4); }
+        .wave.active .wave-bar { opacity: 1; }
+        .wave-bar:nth-child(1) { animation-delay: 0s; }
+        .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.6s; }
+        @keyframes wave { 0%, 100% { height: 5px; } 50% { height: 18px; } }
+        .audio-status { font-size: 11px; color: #64748b; margin-left: 6px; font-weight: 500; }
+        .audio-controls { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 18px; padding: 10px; }
+        .btn-replay { background: linear-gradient(135deg, transparent 0%, rgba(56,189,248,0.1) 100%); border: 2px solid #38bdf8; color: #38bdf8; width: 42px; height: 42px; border-radius: 50%; font-size: 14px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(56,189,248,0.2); }
+        .btn-replay:hover { background: #38bdf8; color: #0f172a; transform: rotate(180deg); box-shadow: 0 0 25px rgba(56,189,248,0.4); }
+        .btn-replay:active { transform: rotate(180deg) scale(0.95); }
+        .volume-control { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(51,65,85,0.5); border-radius: 20px; border: 1px solid rgba(56,189,248,0.1); }
+        .volume-slider { width: 70px; height: 4px; -webkit-appearance: none; background: linear-gradient(90deg, #38bdf8 0%, #334155 0%); border-radius: 2px; outline: none; cursor: pointer; }
+        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: linear-gradient(135deg, #38bdf8, #0ea5e9); border-radius: 50%; cursor: pointer; box-shadow: 0 2px 8px rgba(56,189,248,0.3); transition: transform 0.2s; }
+        .volume-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .tag { display: inline-block; font-size: 11px; color: #38bdf8; padding: 4px 12px; background: rgba(56,189,248,0.1); border-radius: 12px; border: 1px solid rgba(56,189,248,0.2); letter-spacing: 1px; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
+        .tag.show { opacity: 1; }
+        @media (max-width: 393px) { .volume-slider { width: 60px; } h2 { letter-spacing: 1px; } }
+        @media (min-width: 430px) { .container { max-width: 430px; } .info-panel { padding: 32px 24px 36px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-wrapper">
+            <div class="skeleton" id="skeleton" style="display: none;"></div>
+            <img id="ani-img" src="https://images.unsplash.com/photo-1470093851219-69951fcbb533?w=800" alt="动物图鉴">
+            <div class="loading-bar" id="loader"></div>
+        </div>
+        <div class="info-panel">
+            <h2 id="ani-name">万物有灵</h2>
+            <span class="tag" id="animal-tag"></span>
+            <div class="audio-indicator">
+                <div class="wave" id="audio-wave">
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                </div>
+                <span class="audio-status" id="audio-status"></span>
+            </div>
+            <div class="audio-controls">
+                <button class="btn-replay" id="btn-replay" onclick="replayAudio()" style="display: none;">🔄</button>
+                <div class="volume-control">
+                    <span style="font-size: 12px; color: #64748b;">🔊</span>
+                    <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="70" onchange="changeVolume()">
+                </div>
+            </div>
+            <p class="story" id="ani-story">点击下方按钮，开始聆听大自然的低语...</p>
+            <button class="btn-explore" id="main-btn" onclick="nextDiscovery()">🌲 开启探索</button>
+            <audio id="ani-audio"></audio>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('ani-audio');
+        const wave = document.getElementById('audio-wave');
+        const audioStatus = document.getElementById('audio-status');
+        const btnReplay = document.getElementById('btn-replay');
+        const aniImg = document.getElementById('ani-img');
+        const skeleton = document.getElementById('skeleton');
+        const aniStory = document.getElementById('ani-story');
+        const volumeSlider = document.getElementById('volume-slider');
+        const loader = document.getElementById('loader');
+        const btn = document.getElementById('main-btn');
+        const animalTag = document.getElementById('animal-tag');
+        
+        audio.onplay = () => { wave.classList.add('active'); btnReplay.style.display = 'flex'; };
+        audio.onpause = () => { wave.classList.remove('active'); };
+        audio.onended = () => { wave.classList.remove('active'); };
+        audio.onerror = () => { audioStatus.innerText = "这只动物静悄悄的 🤫"; wave.classList.remove('active'); };
+        
+        function changeVolume() {
+            const value = volumeSlider.value;
+            audio.volume = value / 100;
+            volumeSlider.style.background = `linear-gradient(90deg, #38bdf8 ${value}%, #334155 ${value}%)`;
+        }
+        
+        function replayAudio() {
+            audio.currentTime = 0;
+            audio.play().catch(() => console.log("等待交互"));
+        }
+        
+        async function nextDiscovery() {
+            // 1. 初始化状态
+            btn.innerText = "正在穿越森林...";
+            btn.disabled = true;
+            loader.style.width = "40%";
+            wave.classList.remove('active');
+            audioStatus.innerText = "呼唤中...";
+            btnReplay.style.display = 'none';
+            animalTag.classList.remove('show');
+            aniStory.style.opacity = '0';
+            
+            // 骨架屏立刻开启，图片隐藏准备
+            skeleton.style.display = 'block';
+            aniImg.classList.add('loading');
+
+            try {
+                // 2. 发起请求
+                const response = await fetch('/api/animal');
+                const result = await response.json();
+                
+                loader.style.width = "80%";
+                
+                // 【核心修复】3. 拿到数据瞬间渲染文字，绝不等图片！
+                document.getElementById('ani-name').innerText = result.name;
+                animalTag.innerText = result.tag || '';
+                if(result.tag) animalTag.classList.add('show');
+                aniStory.innerText = result.story;
+                aniStory.style.opacity = '1';
+                aniStory.classList.add('fade-in');
+                setTimeout(() => aniStory.classList.remove('fade-in'), 700);
+                
+                // 4. 音频立马加载播放，绝不等图片！
+                if(result.audio) {
+                    audio.src = result.audio;
+                    audio.load();
+                    audioStatus.innerText = "正在播放真实野外录音 🌿";
+                    audio.play().catch(() => {
+                        audioStatus.innerText = "点击 🔄 按钮播放声音";
+                        btnReplay.style.display = 'flex';
+                    });
+                } else {
+                    audioStatus.innerText = "这只动物睡着了 💤";
+                }
+
+                // 5. 图片后台慢慢加载，好了再显示，卡住也不影响上面！
+                aniImg.src = result.image;
+                aniImg.onload = () => {
+                    skeleton.style.display = 'none';
+                    aniImg.classList.remove('loading');
+                    aniImg.style.transform = 'scale(1)';
+                };
+
+            } catch (error) {
+                aniStory.innerText = "森林信号太弱啦，检查一下后端运行状态吧 📡";
+                aniStory.style.opacity = '1';
+                skeleton.style.display = 'none';
+                audioStatus.innerText = "信号断开";
+            } finally {
+                loader.style.width = "100%";
+                setTimeout(() => loader.style.width = "0%", 500);
+                btn.innerText = "🌲 寻找下一个";
+                btn.disabled = false;
+            }
+        }
+        
+        audio.volume = 0.7;
+        changeVolume();
+    </script>
+</body>
+</html>

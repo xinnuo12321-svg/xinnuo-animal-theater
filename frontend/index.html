@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>沉浸式动物微观剧场</title>
     <style>
         * { box-sizing: border-box; }
@@ -46,7 +47,6 @@
         .tag { display: inline-block; font-size: 11px; color: #38bdf8; padding: 4px 12px; background: rgba(56,189,248,0.1); border-radius: 12px; border: 1px solid rgba(56,189,248,0.2); letter-spacing: 1px; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
         .tag.show { opacity: 1; }
         @media (max-width: 393px) { .volume-slider { width: 60px; } h2 { letter-spacing: 1px; } }
-        @media (min-width: 430px) { .container { max-width: 430px; } .info-panel { padding: 32px 24px 36px; } }
     </style>
 </head>
 <body>
@@ -94,7 +94,7 @@
         audio.onplay = () => { wave.classList.add('active'); btnReplay.style.display = 'flex'; };
         audio.onpause = () => { wave.classList.remove('active'); };
         audio.onended = () => { wave.classList.remove('active'); };
-        audio.onerror = () => { audioStatus.innerText = "这只动物静悄悄的 🤫"; wave.classList.remove('active'); };
+        audio.onerror = () => { audioStatus.innerText = "这只动物跑到远处了 🤫"; wave.classList.remove('active'); };
         
         function changeVolume() {
             const value = volumeSlider.value;
@@ -108,7 +108,6 @@
         }
         
         async function nextDiscovery() {
-            // 1. 初始化状态
             btn.innerText = "正在穿越森林...";
             btn.disabled = true;
             loader.style.width = "40%";
@@ -117,19 +116,23 @@
             btnReplay.style.display = 'none';
             animalTag.classList.remove('show');
             aniStory.style.opacity = '0';
-            
-            // 骨架屏立刻开启，图片隐藏准备
             skeleton.style.display = 'block';
             aniImg.classList.add('loading');
 
+            // 【核武器2】：处理 Render 冷启动休眠问题，安抚用户情绪
+            const coldStartTimer = setTimeout(() => {
+                if (btn.disabled) {
+                    audioStatus.innerText = "海外服务器正在开机，首次加载请稍候数秒 🚀...";
+                }
+            }, 6000);
+
             try {
-                // 2. 发起请求
                 const response = await fetch('/api/animal');
-                const result = await response.json();
+                clearTimeout(coldStartTimer);
                 
+                const result = await response.json();
                 loader.style.width = "80%";
                 
-                // 【核心修复】3. 拿到数据瞬间渲染文字，绝不等图片！
                 document.getElementById('ani-name').innerText = result.name;
                 animalTag.innerText = result.tag || '';
                 if(result.tag) animalTag.classList.add('show');
@@ -138,7 +141,6 @@
                 aniStory.classList.add('fade-in');
                 setTimeout(() => aniStory.classList.remove('fade-in'), 700);
                 
-                // 4. 音频立马加载播放，绝不等图片！
                 if(result.audio) {
                     audio.src = result.audio;
                     audio.load();
@@ -148,10 +150,9 @@
                         btnReplay.style.display = 'flex';
                     });
                 } else {
-                    audioStatus.innerText = "这只动物睡着了 💤";
+                    audioStatus.innerText = "这只动物静悄悄的 💤";
                 }
 
-                // 5. 图片后台慢慢加载，好了再显示，卡住也不影响上面！
                 aniImg.src = result.image;
                 aniImg.onload = () => {
                     skeleton.style.display = 'none';
@@ -160,7 +161,8 @@
                 };
 
             } catch (error) {
-                aniStory.innerText = "森林信号太弱啦，检查一下后端运行状态吧 📡";
+                clearTimeout(coldStartTimer);
+                aniStory.innerText = "森林信号太弱啦，刷新网页重试一下吧 📡";
                 aniStory.style.opacity = '1';
                 skeleton.style.display = 'none';
                 audioStatus.innerText = "信号断开";
@@ -171,7 +173,6 @@
                 btn.disabled = false;
             }
         }
-        
         audio.volume = 0.7;
         changeVolume();
     </script>

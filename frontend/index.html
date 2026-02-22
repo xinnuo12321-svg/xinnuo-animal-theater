@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer">
     <title>沉浸式动物微观剧场</title>
     <style>
         * { box-sizing: border-box; }
-        /* 修复电脑端拉伸：强制居中并限制最大宽度为手机尺寸 */
         body { margin: 0; background: linear-gradient(135deg, #0f172a 0%, #1a2332 50%, #0f172a 100%); color: #f8fafc; font-family: 'PingFang SC', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 10px; }
         .container { width: 100%; max-width: 400px; margin: 0 auto; background: linear-gradient(145deg, rgba(30,41,59,0.95), rgba(15,23,42,0.9)); backdrop-filter: blur(10px); border-radius: 30px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05); }
         
@@ -29,7 +27,6 @@
         .btn-explore:active { transform: scale(0.96); }
         .btn-explore:disabled { opacity: 0.6; cursor: not-allowed; }
         
-        /* 音频控件精简版 */
         .audio-box { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; }
         .audio-status { font-size: 12px; color: #94a3b8; }
     </style>
@@ -65,7 +62,7 @@
         
         audio.onplay = () => { audioStatus.innerText = "🔊 正在播放真实野外声音"; };
         audio.onpause = () => { audioStatus.innerText = "🎵 播放完毕"; };
-        audio.onerror = () => { audioStatus.innerText = "🔇 动物跑远了，没录到声音"; };
+        audio.onerror = () => { audioStatus.innerText = "🔇 动物跑到远方了"; };
         
         async function nextDiscovery() {
             btn.innerText = "正在穿越森林...";
@@ -74,23 +71,19 @@
             animalTag.classList.remove('show');
             aniStory.classList.remove('fade-in');
             
-            // 图片进入加载状态
             skeleton.style.display = 'block';
             aniImg.classList.add('loading');
 
             try {
-                // 请求后端数据
                 const response = await fetch('/api/animal');
                 const result = await response.json();
                 
-                // 1. 瞬间渲染文字（绝不等待图片）
                 document.getElementById('ani-name').innerText = result.name;
                 animalTag.innerText = result.tag || '';
                 animalTag.classList.add('show');
                 aniStory.innerText = result.story;
                 aniStory.classList.add('fade-in');
                 
-                // 2. 尝试播放音频
                 if(result.audio) {
                     audio.src = result.audio;
                     audio.play().catch(() => {
@@ -100,9 +93,13 @@
                     audioStatus.innerText = "🔇 这只动物静悄悄的";
                 }
 
-                // 3. 图片在后台慢慢加载
                 aniImg.src = result.image;
                 aniImg.onload = () => {
+                    skeleton.style.display = 'none';
+                    aniImg.classList.remove('loading');
+                };
+                // 【修复】：图片就算失败，也必须把灰屏撤掉
+                aniImg.onerror = () => {
                     skeleton.style.display = 'none';
                     aniImg.classList.remove('loading');
                 };

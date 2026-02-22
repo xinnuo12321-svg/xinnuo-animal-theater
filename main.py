@@ -17,9 +17,6 @@ app = FastAPI()
 api_key = os.getenv("SILICONFLOW_API_KEY")
 client = AsyncOpenAI(api_key=api_key, base_url="https://api.siliconflow.cn/v1")
 
-# ==========================================
-# 🐾 动态数据库：你可以无限往里添加动物！
-# ==========================================
 ANIMAL_DATABASE = [
     {"zh": "红狐狸", "en": "Vulpes vulpes", "img": "https://images.unsplash.com/photo-1516934024742-b461fba47600?w=800", "tag": "森林猎人", "fallback": "毛茸茸的红狐狸🦊是大自然的精灵！"},
     {"zh": "变色龙", "en": "Chamaeleonidae", "img": "https://images.unsplash.com/photo-1538991383142-36c4edeaffde?w=800", "tag": "伪装大师", "fallback": "变色龙是神奇的魔术师🎨！能随着心情变换皮肤颜色🌈。"},
@@ -37,38 +34,37 @@ ANIMAL_DATABASE = [
 async def get_animal():
     animal = random.choice(ANIMAL_DATABASE)
     
-    # 【任务 1】：抓取声音
+    # 【修复1】：声音抓取时间放宽到 12 秒，并且不挑剔音质，只要有就拿！
     async def fetch_audio():
         try:
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            async with httpx.AsyncClient(timeout=4.0) as client:
-                # 修复核心 BUG：使用 params 自动处理学名中的空格（URL编码）
+            async with httpx.AsyncClient(timeout=12.0, follow_redirects=True) as client:
                 res = await client.get("https://xeno-canto.org/api/2/recordings", params={"query": animal['en']}, headers=headers)
                 if res.status_code == 200:
                     recs = res.json().get("recordings", [])
                     if recs:
-                        good_recs = [r for r in recs if r.get('q') == 'A']
-                        best_rec = good_recs[0] if good_recs else recs[0]
+                        # 撕掉“只拿A级”的愚蠢标签，直接拿第一条关联度最高的真实录音
+                        best_rec = recs[0]
                         temp_url = best_rec.get("file", "")
                         return f"https:{temp_url}" if temp_url.startswith("//") else temp_url
         except Exception as e:
             logger.error(f"声音获取失败: {e}")
         return ""
 
-    # 【任务 2】：大模型生成文案
+    # 【修复2】：大模型生成文案，给足 10 秒思考时间
     async def fetch_story():
         try:
             completion = await client.chat.completions.create(
                 model="deepseek-ai/DeepSeek-V3",
                 messages=[{"role": "user", "content": f"介绍动物【{animal['zh']}】，写一段50字以内适合幼儿的温柔科普文案，带emoji，富有美感。"}],
-                timeout=6.0
+                timeout=10.0
             )
             return completion.choices[0].message.content
         except Exception as e:
             logger.error(f"大模型超时: {e}")
-            return animal.get("fallback", f"它正在大自然里嬉戏呢，{animal['zh']}的秘密稍后再来听吧 ✨")
+            return animal.get("fallback")
 
-    # 🔥 核心升级：并发执行！两项任务同时起跑，时间缩短一半！
+    # 并发执行两项任务
     audio_url, story = await asyncio.gather(fetch_audio(), fetch_story())
 
     return {

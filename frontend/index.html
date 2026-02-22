@@ -62,7 +62,7 @@
         
         audio.onplay = () => { audioStatus.innerText = "🔊 正在播放真实野外声音"; };
         audio.onpause = () => { audioStatus.innerText = "🎵 播放完毕"; };
-        audio.onerror = () => { audioStatus.innerText = "🔇 动物跑到远方了"; };
+        audio.onerror = () => { audioStatus.innerText = "🔇 声音获取中..."; };
         
         async function nextDiscovery() {
             btn.innerText = "正在穿越森林...";
@@ -84,21 +84,22 @@
                 aniStory.innerText = result.story;
                 aniStory.classList.add('fade-in');
                 
-                if(result.audio) {
-                    audio.src = result.audio;
-                    audio.play().catch(() => {
-                        audioStatus.innerText = "点击任意处允许播放声音";
-                    });
-                } else {
-                    audioStatus.innerText = "🔇 这只动物静悄悄的";
-                }
+                // 【核心机制】：调用后端接口替你下载图片和声音，彻底屏蔽跨国网络问题！
+                const proxyImageUrl = `/api/proxy?url=${encodeURIComponent(result.image)}`;
+                const proxyAudioUrl = `/api/proxy?url=${encodeURIComponent(result.audio)}`;
 
-                aniImg.src = result.image;
+                // 播放音频
+                audio.src = proxyAudioUrl;
+                audio.play().catch(() => {
+                    audioStatus.innerText = "点击任意处允许播放声音";
+                });
+
+                // 渲染图片
+                aniImg.src = proxyImageUrl;
                 aniImg.onload = () => {
                     skeleton.style.display = 'none';
                     aniImg.classList.remove('loading');
                 };
-                // 【修复】：图片就算失败，也必须把灰屏撤掉
                 aniImg.onerror = () => {
                     skeleton.style.display = 'none';
                     aniImg.classList.remove('loading');

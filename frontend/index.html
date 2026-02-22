@@ -119,14 +119,15 @@
                 aniStory.innerText = result.story;
                 aniStory.classList.add('fade-in');
                 
-                // 调用后端接口替你下载图片和声音，彻底屏蔽跨国网络问题！
+                // 图片走代理（解决防盗链），音频直接加载（不受CORS限制）
                 const proxyImageUrl = `/api/proxy?url=${encodeURIComponent(result.image)}`;
-                const proxyAudioUrl = `/api/proxy?url=${encodeURIComponent(result.audio)}`;
 
-                // 预加载音频（不自动播放）
-                audio.src = proxyAudioUrl;
-                audio.load();  // 预加载音频
+                // 音频直接加载（audio标签不受CORS限制，无需代理）
+                audio.src = result.audio;
+                audio.load();
                 audioStatus.innerText = "🎵 真实声音已就绪，点击按钮播放";
+                btnPlay.classList.remove('hidden');
+                btnPlay.disabled = false;
 
                 // 渲染图片
                 aniImg.src = proxyImageUrl;

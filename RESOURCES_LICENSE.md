@@ -14,48 +14,32 @@
 
 ## 🎵 音频资源
 
-| 动物名称 | 主要来源 | 许可证类型 | 商用许可 | 需署名 | 备注 |
-|---------|---------|-----------|---------|-------|------|
-| 红狐狸 | Wikimedia Commons | CC0 / Public Domain | ✅ 是 | ❌ 否 | Wikipedia 音频库 |
-| 变色龙 | Wikimedia Commons | CC0 | ✅ 是 | ❌ 否 | 雨林环境音 |
-| 阿拉伯骆驼 | Wikimedia Commons | CC0 | ✅ 是 | ❌ 否 | 骆驼叫声 |
-| 火烈鸟 | Wikimedia Commons | CC0 | ✅ 是 | ❌ 否 | 鸟类叫声 |
-| 孟加拉虎 | Wikimedia Commons | CC0 | ✅ 是 | ❌ 否 | 老虎咆哮 |
-| 雪鸮 | Wikimedia Commons | CC0 | ✅ 是 | ❌ 否 | 猫头鹰叫声 |
-| 蓝金刚鹦鹉 | Wikimedia Commons | CC0 | ✅ 是 | ❌ 否 | 鹦鹉叫声 |
-| 帝企鹅 | Wikimedia Commons | CC0 | ✅ 是 | ❌ 否 | 企鹅叫声 |
-| 梦幻水母 | Soundjay | CC0 | ✅ 是 | ❌ 否 | 水下环境音 |
-| 非洲象 | Wikimedia Commons | CC0 | ✅ 是 | ❌ 否 | 大象叫声 |
+| 动物名称 | 音频文件 | 来源 | 许可证类型 | 商用许可 | 需署名 |
+|---------|---------|------|-----------|---------|-------|
+| 红狐狸 | 11wolfhowls.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+| 变色龙 | 19frogsandsuch.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+| 阿拉伯骆驼 | 52elkbellow.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+| 火烈鸟 | 15redwingblackbird.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+| 孟加拉虎 | 25alligatorhiss.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+| 雪鸮 | 30goldfinch.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+| 蓝金刚鹦鹉 | 35indigobunting.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+| 帝企鹅 | 44loons.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+| 梦幻水母 | 39tundraswans.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+| 非洲象 | 53elkbellow2.mp3 | Archive.org | Public Domain | ✅ 是 | ❌ 否 |
+
+**说明**：2026年2月22日更新，所有音频源已统一为 Archive.org "animalsounds1" 合集。
 
 ### 音频资源详细说明
 
-**WikiMedia Commons (https://commons.wikimedia.org/)**
-- **许可证**：主要为 CC0 (Creative Commons Zero) 或 Public Domain
+**Internet Archive - animalsounds1 合集 (https://archive.org/details/animalsounds1)**
+- **来源**：U.S. Fish and Wildlife Service（美国鱼类和野生动物管理局）
+- **许可证**：Public Domain（公共领域）
 - **使用权利**：
   - ✅ 可用于商业项目
   - ✅ 可修改、分发
-  - ❌ 无需署名（署名表示感谢但非必须）
-- **限制**：不得单独作为音频文件售卖
-- **网站声明**：WikiMedia Commons 是维基媒体基金会运营的免费媒体库，收录大量公开领域和 CC0 许可证的资源。
-
-**Soundjay (https://www.soundjay.com/)**
-- **许可证**：CC0 (Creative Commons Zero)
-- **使用权利**：
-  - ✅ 免费使用于个人和商业项目
-  - ✅ 无需署名
-- **限制**：不得转售或作为独立产品分发
-
-### Xeno-canto API（实时获取）
-
-**来源**：https://xeno-canto.org/  
-**许可证**：CC-BY-NC-SA 4.0（Creative Commons Attribution-NonCommercial-ShareAlike 4.0）
-
-**仅用于非商业目的**：
-- ❌ 本项目不使用此 API 的音频作为主要资源
-- ✅ 仅作为技术备选方案
-- ⚠️ 如果使用 Xeno-canto 的录音，需署名作者、非商用使用、相同方式共享
-
-**本项目实际使用**：Xeno-canto API 仅用于查询，实际播放使用 Wikimedia 等更宽松的许可证资源。
+  - ✅ 无需署名（署名表示感谢但非必须）
+- **限制**：无限制，属于美国联邦政府作品，自动进入公共领域
+- **备注**：音频为野外实地录音，包含多种北美野生动物声音。部分音频为泛自然环境声（如蛙鸣、鸟鸣），并非严格对应每种展示动物的专属录音。
 
 ---
 
@@ -127,6 +111,7 @@
 ## 📝 版权更新日志
 
 - **2025-02-22**：初始版本，整理所有音频和图片资源的版权信息
+- **2026-02-22**：音频源统一迁移至 Archive.org Public Domain；修复5个失效/错误的 Unsplash 图片URL
 - 所有资源均来自免费可商用来源
 - 定期检查资源链接的有效性
 
@@ -136,10 +121,9 @@
 
 - [Creative Commons Zero 官方说明](https://creativecommons.org/public-domain/zero/1.0/)
 - [Unsplash 许可证](https://unsplash.com/license)
-- [WikiMedia Commons](https://commons.wikimedia.org/)
-- [Soundjay 免费音效](https://www.soundjay.com/)
+- [Internet Archive - animalsounds1](https://archive.org/details/animalsounds1)
 
 ---
 
-**最后更新**：2025年2月22日  
+**最后更新**：2026年2月22日  
 **维护者**：animal-theater-pro 项目团队

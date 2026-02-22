@@ -29,6 +29,10 @@
         
         .audio-box { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; }
         .audio-status { font-size: 12px; color: #94a3b8; }
+        .btn-play-audio { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 10px 20px; border-radius: 25px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px -3px rgba(16, 185, 129, 0.4); transition: transform 0.2s; }
+        .btn-play-audio:active { transform: scale(0.95); }
+        .btn-play-audio:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-play-audio.hidden { display: none; }
     </style>
 </head>
 <body>
@@ -42,11 +46,12 @@
             <span class="tag" id="animal-tag"></span>
             
             <div class="audio-box">
-                <span id="audio-status" class="audio-status"></span>
+                <span id="audio-status" class="audio-status">🎵 准备就绪</span>
             </div>
-            
+
             <p class="story" id="ani-story">点击下方按钮，进入大自然...</p>
             <button class="btn-explore" id="main-btn" onclick="nextDiscovery()">🌲 开启探索</button>
+            <button class="btn-play-audio hidden" id="btn-play" onclick="playAnimalSound()">🔊 播放真实声音</button>
             <audio id="ani-audio"></audio>
         </div>
     </div>
@@ -58,18 +63,48 @@
         const skeleton = document.getElementById('skeleton');
         const aniStory = document.getElementById('ani-story');
         const btn = document.getElementById('main-btn');
+        const btnPlay = document.getElementById('btn-play');
         const animalTag = document.getElementById('animal-tag');
         
-        audio.onplay = () => { audioStatus.innerText = "🔊 正在播放真实野外声音"; };
-        audio.onpause = () => { audioStatus.innerText = "🎵 播放完毕"; };
-        audio.onerror = () => { audioStatus.innerText = "🔇 声音获取中..."; };
+        // 设置音频音量
+        audio.volume = 0.8;
+        
+        // 音频事件监听
+        audio.onplay = () => { 
+            audioStatus.innerText = "🔊 正在播放真实野外声音"; 
+            btnPlay.disabled = true;
+        };
+        audio.onpause = () => { 
+            audioStatus.innerText = "🎵 播放完毕，可再次播放"; 
+            btnPlay.disabled = false;
+        };
+        audio.onended = () => { 
+            audioStatus.innerText = "🎵 播放完毕"; 
+            btnPlay.disabled = false;
+        };
+        audio.onerror = () => { 
+            audioStatus.innerText = "🔇 音频加载失败，请稍后重试"; 
+            btnPlay.disabled = true;
+        };
+        
+        // 用户主动播放音频（解决浏览器自动播放限制）
+        function playAnimalSound() {
+            if (audio.src) {
+                audio.play().catch(err => {
+                    audioStatus.innerText = "❌ 播放失败：" + err.message;
+                });
+            } else {
+                audioStatus.innerText = "⚠️ 请先选择一个动物";
+            }
+        }
         
         async function nextDiscovery() {
             btn.innerText = "正在穿越森林...";
             btn.disabled = true;
-            audioStatus.innerText = "唤醒中...";
+            audioStatus.innerText = "🔍 搜集中...";
             animalTag.classList.remove('show');
             aniStory.classList.remove('fade-in');
+            btnPlay.classList.add('hidden');  // 隐藏播放按钮
             
             skeleton.style.display = 'block';
             aniImg.classList.add('loading');
@@ -84,15 +119,14 @@
                 aniStory.innerText = result.story;
                 aniStory.classList.add('fade-in');
                 
-                // 【核心机制】：调用后端接口替你下载图片和声音，彻底屏蔽跨国网络问题！
+                // 调用后端接口替你下载图片和声音，彻底屏蔽跨国网络问题！
                 const proxyImageUrl = `/api/proxy?url=${encodeURIComponent(result.image)}`;
                 const proxyAudioUrl = `/api/proxy?url=${encodeURIComponent(result.audio)}`;
 
-                // 播放音频
+                // 预加载音频（不自动播放）
                 audio.src = proxyAudioUrl;
-                audio.play().catch(() => {
-                    audioStatus.innerText = "点击任意处允许播放声音";
-                });
+                audio.load();  // 预加载音频
+                audioStatus.innerText = "🎵 真实声音已就绪，点击按钮播放";
 
                 // 渲染图片
                 aniImg.src = proxyImageUrl;
@@ -103,19 +137,26 @@
                 aniImg.onerror = () => {
                     skeleton.style.display = 'none';
                     aniImg.classList.remove('loading');
+                    audioStatus.innerText = "⚠️ 图片加载失败，但声音可以播放";
+                };
+                
+                // 显示播放按钮（音频加载完成后）
+                audio.onloadeddata = () => {
+                    btnPlay.classList.remove('hidden');
+                    btnPlay.disabled = false;
                 };
 
             } catch (error) {
                 aniStory.innerText = "森林信号太弱啦，刷新网页重试一下吧 📡";
                 aniStory.classList.add('fade-in');
                 skeleton.style.display = 'none';
-                audioStatus.innerText = "信号断开";
+                audioStatus.innerText = "❌ 信号断开";
+                btnPlay.classList.add('hidden');
             } finally {
                 btn.innerText = "🌲 寻找下一个";
                 btn.disabled = false;
             }
         }
-        audio.volume = 0.8;
     </script>
 </body>
 </html>

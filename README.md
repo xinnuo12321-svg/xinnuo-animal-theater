@@ -4,11 +4,20 @@
 
 ## ✨ 核心特色
 
-- **真实野外声音** - 智能调用 Xeno-canto API，获取真实野外动物录音
-- **精选用图** - 32种高商业价值动物，精选Unsplash高清美图
+- **真实野外声音** - 智能调用 Xeno-canto API，获取真实野外动物录音（备有 Wikimedia CC0 音频）
+- **精选用图** - 10种精选动物，精选Unsplash高清美图
 - **AI温柔科普** - DeepSeek V3 生成50字内幼儿友好科普文案
 - **沉浸式UI** - 移动端优先的高级深色设计，完美适配手机竖屏
 - **零成本部署** - 可一键部署至 Render 免费，支持公网访问
+- **国内直访优化** - 通过 Render 代理服务器下载资源，国内用户无需梯子即可流畅使用
+
+## 📜 版权声明
+
+本项目使用的所有音视频资源均来自**免费可商用的公开来源**，包括：
+- **图片**：Unsplash License（免费商用，无需署名）
+- **音频**：WikiMedia Commons CC0 / Soundjay CC0（免费商用，无需署名）
+
+详细的版权声明和资源来源请查看：**[RESOURCES_LICENSE.md](RESOURCES_LICENSE.md)**
 
 ## 🚀 快速开始
 
@@ -70,6 +79,25 @@ python main.py
 ## 📄 开源协议
 
 本项目基于 MIT 协议开源
+
+## 📜 版权声明
+
+本项目使用的所有资源均来自免费可商用的公开来源：
+
+| 资源类型 | 来源 | 许可证 |
+|---------|------|-------|
+| 图片 | Unsplash | Unsplash License（免费商用） |
+| 音频 | WikiMedia Commons | CC0 / Public Domain |
+| 音频 | Soundjay | CC0 |
+
+**详细版权信息**：请查看 [RESOURCES_LICENSE.md](RESOURCES_LICENSE.md)
+
+### 使用须知
+
+- ✅ 可免费用于个人和商业项目
+- ✅ 无需署名
+- ❌ 不得单独售卖资源文件
+- ❌ 不得用于商标或商业标识
 
 ## 🤝 贡献
 
